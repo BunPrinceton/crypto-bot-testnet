@@ -1,0 +1,41 @@
+# Core trading library
+ccxt==4.1.0
+
+# Data processing
+pandas==2.1.0
+numpy==1.25.0
+
+# WebSocket for real-time data
+websocket-client==1.6.0
+websockets==12.0
+
+# HTTP requests
+requests==2.31.0
+
+# Environment variables
+python-dotenv==1.0.0
+
+# Database
+psycopg2-binary==2.9.9  # PostgreSQL
+pymongo==4.5.0          # MongoDB
+
+# Caching
+redis==5.0.0
+
+# Technical analysis
+ta-lib==0.4.28
+pandas-ta==0.3.14b0
+
+# Async support
+asyncio==3.4.3
+aiohttp==3.9.0
+
+# Logging
+python-json-logger==2.0.7
+
+# Testing
+pytest==7.4.0
+pytest-asyncio==0.21.0
+
+# Monitoring
+prometheus-client==0.18.0
