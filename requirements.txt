@@ -39,3 +39,6 @@ pytest-asyncio==0.21.0
 
 # Monitoring
 prometheus-client==0.18.0
+
+# Web Dashboard
+Flask==3.0.0

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Coin Arbitrage Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .demo-toggle {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+        }
+
+        .demo-button {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .demo-button.active {
+            background: linear-gradient(135deg, #00f260 0%, #0575e6 100%);
+            animation: pulse-demo 2s infinite;
+        }
+
+        @keyframes pulse-demo {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 242, 96, 0.6); }
+            50% { box-shadow: 0 0 40px rgba(0, 242, 96, 0.9); }
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .demo-indicator {
+            display: none;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            animation: pulse-demo 2s infinite;
+        }
+
+        .demo-indicator.active {
+            display: block;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+            border-bottom: 3px solid #764ba2;
+            padding-bottom: 10px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+
+        th:hover {
+            background: linear-gradient(135deg, #7b8ef7 0%, #8a5cb0 100%);
+        }
+
+        th.sortable::after {
+            content: ' ⇅';
+            opacity: 0.3;
+            margin-left: 5px;
+        }
+
+        th.sort-asc::after {
+            content: ' ▲';
+            opacity: 1;
+        }
+
+        th.sort-desc::after {
+            content: ' ▼';
+            opacity: 1;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        tr:hover {
+            background: #f8f9ff;
+        }
+
+        .symbol-name {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .spread-low { color: #27ae60; }
+        .spread-medium { color: #f39c12; }
+        .spread-high { color: #e74c3c; }
+
+        .opportunity-card {
+            background: linear-gradient(135deg, #00f260 0%, #0575e6 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .profit-badge {
+            background: #ffd700;
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.9em;
+        }
+
+        .no-opportunities {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 1.1em;
+        }
+
+        .loading {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+
+        .update-badge {
+            display: inline-block;
+            background: #00ff88;
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        @media (max-width: 1200px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .demo-toggle {
+                position: static;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="demo-toggle">
+                <button class="demo-button" id="demoToggle" onclick="toggleDemoMode()">
+                    🎭 DEMO MODE: OFF
+                </button>
+            </div>
+            <h1>🚀 Multi-Coin Arbitrage Dashboard</h1>
+            <p style="margin-top:10px; font-size:1.1em;">
+                Monitoring <strong><span id="coinCount">25</span></strong> cryptocurrencies across
+                <strong>5</strong> exchanges
+                | Last update: <span id="lastUpdate">Never</span>
+                | Iteration: <span class="update-badge" id="iteration">0</span>
+            </p>
+        </header>
+
+        <div class="demo-indicator" id="demoIndicator">
+            🎭 DEMO MODE ACTIVE - Simulated arbitrage opportunities (30% of coins have opportunities)
+        </div>
+
+        <!-- Summary Statistics -->
+        <div class="stats-summary">
+            <div class="stat-box">
+                <div class="stat-value" id="totalCoins">-</div>
+                <div class="stat-label">Coins Monitored</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="coinsWithOpps">-</div>
+                <div class="stat-label">Coins with Opportunities</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="totalOpps">-</div>
+                <div class="stat-label">Total Opportunities</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="bestProfit">-</div>
+                <div class="stat-label">Best Net Profit %</div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- All Coins Table -->
+            <div class="card full-width">
+                <h2>💰 All Cryptocurrencies</h2>
+                <div style="max-height: 500px; overflow-y: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="sortable" onclick="sortTable('symbol')">Symbol</th>
+                                <th class="sortable" onclick="sortTable('price')">Avg Price</th>
+                                <th class="sortable sort-desc" onclick="sortTable('spread')">Spread %</th>
+                                <th class="sortable" onclick="sortTable('exchanges')">Exchanges</th>
+                                <th class="sortable" onclick="sortTable('opportunities')">Opportunities</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coinsTable">
+                            <tr><td colspan="5" class="loading">Loading coins...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Top Arbitrage Opportunities -->
+            <div class="card full-width">
+                <h2>🎯 Top Arbitrage Opportunities (All Coins)</h2>
+                <div id="opportunitiesContainer" style="max-height: 600px; overflow-y: auto;">
+                    <div class="no-opportunities">Scanning...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let demoMode = false;
+        let currentCoinData = {};
+        let sortColumn = 'spread';
+        let sortDirection = 'desc';
+
+        function toggleDemoMode() {
+            fetch('/api/toggle_demo', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    demoMode = data.demo_mode;
+                    updateDemoUI();
+                });
+        }
+
+        function updateDemoUI() {
+            const button = document.getElementById('demoToggle');
+            const indicator = document.getElementById('demoIndicator');
+
+            if (demoMode) {
+                button.textContent = '🎭 DEMO MODE: ON';
+                button.classList.add('active');
+                indicator.classList.add('active');
+            } else {
+                button.textContent = '🎭 DEMO MODE: OFF';
+                button.classList.remove('active');
+                indicator.classList.remove('active');
+            }
+        }
+
+        function updateDashboard() {
+            fetch('/api/data')
+                .then(response => response.json())
+                .then(data => {
+                    // Update demo mode
+                    if (data.demo_mode !== demoMode) {
+                        demoMode = data.demo_mode;
+                        updateDemoUI();
+                    }
+
+                    // Update header
+                    document.getElementById('lastUpdate').textContent = data.last_update || 'Never';
+                    document.getElementById('iteration').textContent = data.iteration;
+                    document.getElementById('coinCount').textContent = data.symbols.length;
+
+                    // Update stats
+                    if (data.stats) {
+                        document.getElementById('totalCoins').textContent = data.stats.total_coins || 0;
+                        document.getElementById('coinsWithOpps').textContent = data.stats.coins_with_opps || 0;
+                        document.getElementById('totalOpps').textContent = data.stats.total_opps || 0;
+                        document.getElementById('bestProfit').textContent =
+                            data.stats.best_profit ? data.stats.best_profit.toFixed(3) + '%' : '0%';
+                    }
+
+                    // Update coins table
+                    currentCoinData = data.coin_data;
+                    updateCoinsTable(currentCoinData);
+
+                    // Update opportunities
+                    updateOpportunities(data.all_opportunities);
+                });
+        }
+
+        function sortTable(column) {
+            // Update sort direction
+            if (sortColumn === column) {
+                sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            } else {
+                sortColumn = column;
+                sortDirection = column === 'spread' || column === 'opportunities' ? 'desc' : 'asc';
+            }
+
+            // Update header classes
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+            });
+
+            const header = event.target;
+            header.classList.add(sortDirection === 'asc' ? 'sort-asc' : 'sort-desc');
+
+            // Re-render table with current data
+            updateCoinsTable(currentCoinData);
+        }
+
+        function updateCoinsTable(coinData) {
+            const tbody = document.getElementById('coinsTable');
+
+            if (!coinData || Object.keys(coinData).length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="loading">Loading data...</td></tr>';
+                return;
+            }
+
+            // Prepare data for sorting
+            let rows = [];
+            for (const symbol of Object.keys(coinData)) {
+                const data = coinData[symbol];
+                if (data && data.stats) {
+                    const stats = data.stats;
+                    const oppCount = data.opportunities ? data.opportunities.length : 0;
+
+                    rows.push({
+                        symbol: symbol,
+                        symbolName: symbol.split('/')[0],
+                        avgPrice: stats.avg_price,
+                        spreadPct: stats.spread_pct,
+                        exchangesOnline: stats.exchanges_online,
+                        oppCount: oppCount
+                    });
+                }
+            }
+
+            // Sort rows
+            rows.sort((a, b) => {
+                let aVal, bVal;
+
+                switch(sortColumn) {
+                    case 'symbol':
+                        aVal = a.symbolName;
+                        bVal = b.symbolName;
+                        break;
+                    case 'price':
+                        aVal = a.avgPrice;
+                        bVal = b.avgPrice;
+                        break;
+                    case 'spread':
+                        aVal = a.spreadPct;
+                        bVal = b.spreadPct;
+                        break;
+                    case 'exchanges':
+                        aVal = a.exchangesOnline;
+                        bVal = b.exchangesOnline;
+                        break;
+                    case 'opportunities':
+                        aVal = a.oppCount;
+                        bVal = b.oppCount;
+                        break;
+                    default:
+                        return 0;
+                }
+
+                if (typeof aVal === 'string') {
+                    return sortDirection === 'asc'
+                        ? aVal.localeCompare(bVal)
+                        : bVal.localeCompare(aVal);
+                } else {
+                    return sortDirection === 'asc'
+                        ? aVal - bVal
+                        : bVal - aVal;
+                }
+            });
+
+            // Generate HTML
+            let html = '';
+            for (const row of rows) {
+                let spreadClass = 'spread-low';
+                if (row.spreadPct > 0.5) spreadClass = 'spread-high';
+                else if (row.spreadPct > 0.2) spreadClass = 'spread-medium';
+
+                html += `
+                    <tr>
+                        <td class="symbol-name">${row.symbolName}</td>
+                        <td>$${row.avgPrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td class="${spreadClass}">${row.spreadPct.toFixed(3)}%</td>
+                        <td>${row.exchangesOnline}/5</td>
+                        <td><strong>${row.oppCount}</strong>${row.oppCount > 0 ? ' 🎯' : ''}</td>
+                    </tr>
+                `;
+            }
+
+            tbody.innerHTML = html || '<tr><td colspan="5" class="loading">No data yet...</td></tr>';
+        }
+
+        function updateOpportunities(opportunities) {
+            const container = document.getElementById('opportunitiesContainer');
+
+            if (!opportunities || opportunities.length === 0) {
+                container.innerHTML = `
+                    <div class="no-opportunities">
+                        No profitable arbitrage opportunities found.<br>
+                        ${demoMode ? 'Demo mode: Some coins will show opportunities soon...' : 'Markets are efficient! ✅'}
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            opportunities.forEach((opp, i) => {
+                html += `
+                    <div class="opportunity-card">
+                        <strong>#${i + 1}: ${opp.symbol.split('/')[0]}</strong>
+                        <p>Buy from <strong>${opp.buy_from}</strong> @ $${opp.buy_price.toFixed(2)} →
+                           Sell to <strong>${opp.sell_to}</strong> @ $${opp.sell_price.toFixed(2)}</p>
+                        <span class="profit-badge">💰 ${opp.net_profit_pct.toFixed(3)}% Net Profit</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Initialize
+        updateDashboard();
+
+        // Update every 3 seconds
+        setInterval(updateDashboard, 3000);
+    </script>
+</body>
+</html>

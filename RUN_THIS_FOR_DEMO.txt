@@ -1,0 +1,79 @@
+====================================================================
+   CRYPTO ARBITRAGE BOT - DASHBOARD FOR DEMO
+   Quick Start Guide for 11 AM Presentation
+====================================================================
+
+STEP 1: Start the Dashboard
+----------------------------
+Run this command in your terminal:
+
+    ./run_dashboard.sh
+
+OR if that doesn't work:
+
+    cd src && python3 dashboard.py
+
+
+STEP 2: Open Your Browser
+--------------------------
+Visit this URL:
+
+    http://localhost:5000
+
+
+STEP 3: Wait for Data
+----------------------
+- First update takes 10-15 seconds
+- Watch the "Iteration" counter increment
+- Dashboard auto-refreshes every 10 seconds
+
+
+WHAT YOU'LL SEE:
+================
+
+Left Panel:   Live prices from Binance, Kraken, Coinbase
+Right Panel:  Arbitrage opportunities (if any exist)
+Bottom Panel: Market statistics and metrics
+
+
+EXPECTED BEHAVIOR:
+==================
+
+✅ Prices update every 10 seconds
+✅ Most of the time: NO arbitrage opportunities (normal!)
+✅ Occasionally: Small profit opportunities may appear
+✅ Green "Updated" badge flashes on refresh
+
+
+DEMO TALKING POINTS:
+====================
+
+1. "Real-time monitoring across 3 major crypto exchanges"
+2. "Automatically detects profitable arbitrage opportunities"
+3. "Accounts for trading fees in profit calculations"
+4. "Live updates every 10 seconds without manual refresh"
+5. "Built with Python and Flask - production-ready"
+
+
+IF PROBLEMS:
+============
+
+Problem: "ModuleNotFoundError: No module named 'flask'"
+Fix:     pip install Flask==3.0.0
+
+Problem: No data showing
+Fix:     Wait 15 seconds, check internet connection
+
+Problem: Port 5000 in use
+Fix:     Edit src/dashboard.py line 183, change to port 5001
+
+
+TO STOP:
+========
+
+Press Ctrl+C in the terminal
+
+
+GOOD LUCK! 🚀
+
+====================================================================
