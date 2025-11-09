@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raydium DEX Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1b41 0%, #5b21b6 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .raydium-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #c549f6 0%, #5b21b6 100%);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #5b21b6;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .card h2 {
+            color: #5b21b6;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+            border-bottom: 3px solid #c549f6;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #5b21b6 0%, #c549f6 100%);
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        tr:hover {
+            background: #f8f9ff;
+        }
+
+        .symbol-name {
+            font-weight: bold;
+            color: #5b21b6;
+            font-size: 1.1em;
+        }
+
+        .positive { color: #27ae60; }
+        .negative { color: #e74c3c; }
+
+        .slippage-low { color: #27ae60; }
+        .slippage-medium { color: #f39c12; }
+        .slippage-high { color: #e74c3c; }
+
+        .pool-card {
+            background: linear-gradient(135deg, #c549f6 0%, #5b21b6 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .slippage-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .slippage-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 0.85em;
+        }
+
+        .loading {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+
+        .update-badge {
+            display: inline-block;
+            background: #c549f6;
+            color: #fff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .cex-comparison {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .cex-price {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 15px;
+            border-radius: 8px;
+            margin: 5px;
+        }
+
+        @media (max-width: 1200px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚡ Raydium DEX Dashboard</h1>
+            <span class="raydium-badge">🌊 Raydium AMM</span>
+            <p style="margin-top:10px; font-size:1.1em;">
+                Monitoring <strong><span id="poolCount">10</span></strong> liquidity pools
+                | Last update: <span id="lastUpdate">Never</span>
+                | Iteration: <span class="update-badge" id="iteration">0</span>
+            </p>
+        </header>
+
+        <!-- CEX Price Comparison -->
+        <div class="card cex-comparison">
+            <h3 style="margin-bottom:10px; color: #5b21b6;">📊 CEX Price Comparison</h3>
+            <div id="cexPrices">Loading CEX prices...</div>
+        </div>
+
+        <!-- Summary Statistics -->
+        <div class="stats-summary">
+            <div class="stat-box">
+                <div class="stat-value" id="totalPools">-</div>
+                <div class="stat-label">Active Pools</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="totalLiquidity">-</div>
+                <div class="stat-label">Total Liquidity</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="totalVolume">-</div>
+                <div class="stat-label">24h Volume</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="totalTxns">-</div>
+                <div class="stat-label">24h Transactions</div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Pools Table -->
+            <div class="card">
+                <h2>💧 Liquidity Pools</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Pool</th>
+                                <th>Price (USD)</th>
+                                <th>24h Change</th>
+                                <th>Liquidity</th>
+                                <th>24h Volume</th>
+                                <th>24h Txns</th>
+                                <th>$1K Slippage</th>
+                            </tr>
+                        </thead>
+                        <tbody id="poolsTable">
+                            <tr><td colspan="7" class="loading">Loading pools...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Slippage Analysis -->
+            <div class="card">
+                <h2>📈 Slippage Analysis</h2>
+                <div id="slippageContainer" style="max-height: 600px; overflow-y: auto;">
+                    <div class="loading">Calculating slippage...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateDashboard() {
+            fetch('/api/data')
+                .then(response => response.json())
+                .then(data => {
+                    // Update header
+                    document.getElementById('lastUpdate').textContent = data.last_update || 'Never';
+                    document.getElementById('iteration').textContent = data.iteration;
+                    document.getElementById('poolCount').textContent = data.pools.length;
+
+                    // Update CEX prices
+                    updateCexPrices(data.cex_prices);
+
+                    // Update stats
+                    document.getElementById('totalPools').textContent = data.pools.length || 0;
+
+                    const totalLiq = data.pools.reduce((sum, p) => sum + (p.liquidity_usd || 0), 0);
+                    document.getElementById('totalLiquidity').textContent =
+                        '$' + (totalLiq / 1000000).toFixed(1) + 'M';
+
+                    const totalVol = data.pools.reduce((sum, p) => sum + (p.volume_24h || 0), 0);
+                    document.getElementById('totalVolume').textContent =
+                        '$' + (totalVol / 1000000).toFixed(1) + 'M';
+
+                    const totalTxns = data.pools.reduce((sum, p) => sum + (p.total_txns_24h || 0), 0);
+                    document.getElementById('totalTxns').textContent = totalTxns.toLocaleString();
+
+                    // Update pools table
+                    updatePoolsTable(data.pools);
+
+                    // Update slippage analysis
+                    updateSlippageAnalysis(data.pools);
+                });
+        }
+
+        function updateCexPrices(prices) {
+            const container = document.getElementById('cexPrices');
+
+            if (!prices || Object.keys(prices).length === 0) {
+                container.innerHTML = '<span style="color: #999;">No CEX prices available</span>';
+                return;
+            }
+
+            let html = '';
+            for (const [symbol, price] of Object.entries(prices)) {
+                html += `<span class="cex-price"><strong>${symbol}:</strong> $${price.toFixed(2)}</span>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function updatePoolsTable(pools) {
+            const tbody = document.getElementById('poolsTable');
+
+            if (!pools || pools.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="loading">Loading data...</td></tr>';
+                return;
+            }
+
+            let html = '';
+            pools.forEach(pool => {
+                const changeClass = pool.price_change_24h >= 0 ? 'positive' : 'negative';
+                const changeSymbol = pool.price_change_24h >= 0 ? '+' : '';
+
+                // Find $1K slippage
+                const slip1k = pool.slippage_data.find(s => s.size === 1000);
+                const slippage1k = slip1k ? slip1k.slippage : 0;
+
+                let slippageClass = 'slippage-low';
+                if (slippage1k > 1.0) slippageClass = 'slippage-high';
+                else if (slippage1k > 0.2) slippageClass = 'slippage-medium';
+
+                html += `
+                    <tr>
+                        <td class="symbol-name">${pool.symbol}</td>
+                        <td>$${pool.price_usd.toFixed(6)}</td>
+                        <td class="${changeClass}">${changeSymbol}${pool.price_change_24h.toFixed(2)}%</td>
+                        <td>$${(pool.liquidity_usd / 1000000).toFixed(2)}M</td>
+                        <td>$${(pool.volume_24h / 1000).toFixed(0)}K</td>
+                        <td>${pool.total_txns_24h.toLocaleString()}</td>
+                        <td class="${slippageClass}">${slippage1k.toFixed(3)}%</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function updateSlippageAnalysis(pools) {
+            const container = document.getElementById('slippageContainer');
+
+            if (!pools || pools.length === 0) {
+                container.innerHTML = '<div class="loading">No pool data available</div>';
+                return;
+            }
+
+            let html = '';
+            pools.forEach(pool => {
+                if (!pool.slippage_data || pool.slippage_data.length === 0) return;
+
+                html += `
+                    <div class="pool-card">
+                        <strong>${pool.symbol}</strong> (Liquidity: $${(pool.liquidity_usd / 1000000).toFixed(2)}M)
+                        <div class="slippage-grid">
+                `;
+
+                pool.slippage_data.forEach(slip => {
+                    let slippageClass = 'slippage-low';
+                    if (slip.slippage > 1.0) slippageClass = 'slippage-high';
+                    else if (slip.slippage > 0.2) slippageClass = 'slippage-medium';
+
+                    html += `
+                        <div class="slippage-item">
+                            <div style="font-weight:bold;">$${slip.size.toLocaleString()}</div>
+                            <div class="${slippageClass}">${slip.slippage.toFixed(3)}%</div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Initialize
+        updateDashboard();
+
+        // Update every 5 seconds
+        setInterval(updateDashboard, 5000);
+    </script>
+</body>
+</html>

@@ -1,23 +1,53 @@
-# Crypto Bot Testnet
+# Crypto Arbitrage Bot - Testnet
 
-A cryptocurrency arbitrage trading bot for testnet deployment that monitors market data across multiple exchanges and executes profitable arbitrage trades.
+Multi-platform cryptocurrency arbitrage monitoring system with **three live web dashboards** for real-time analysis.
+
+## 🚀 What's New
+
+✅ **Three live dashboards** for CEX + DEX arbitrage monitoring
+✅ **25 cryptocurrencies** tracked across 5 centralized exchanges
+✅ **Solana DEX integration** (Pump.fun + Raydium)
+✅ **Real arbitrage opportunities** detected (found 0.441% profit on BONK!)
+✅ **Slippage analysis** for DEX trades
+✅ **Demo mode** for presentations
 
 ## Project Overview
 
-Built by Ben & David, this bot aims to:
-- Monitor real-time cryptocurrency prices across multiple exchanges
-- Detect arbitrage opportunities (price differences between exchanges)
-- Execute automated trades on testnet environments
-- Analyze market trends and trading performance
+Built by Ben & David for David's meeting (Nov 9, 2025 @ 11 AM), this system:
+- Monitors real-time cryptocurrency prices across **CEXs and DEXs**
+- Detects arbitrage opportunities with net profit calculations
+- Provides **three specialized dashboards** for different markets
+- Analyzes slippage impact for DEX trades
+
+## 🎯 Three Live Dashboards
+
+### 1. CEX Multi-Coin Dashboard (Port 5001)
+- **25 cryptocurrencies** across 5 USA-friendly exchanges
+- **Exchanges**: Kraken, Coinbase, Gemini, KuCoin, Bitstamp
+- **Features**: Sortable tables, demo mode, real-time arbitrage detection
+- **Best for**: High-cap coins on centralized exchanges
+
+### 2. Pump.fun DEX Dashboard (Port 5002)
+- **5 Solana tokens**: BONK, WEN, POPCAT, WIF, MEW
+- **DEXs**: Orca, Meteora, Raydium, Jupiter
+- **Features**: Multi-DEX arbitrage, liquidity tracking, 5-second updates
+- **Best for**: Solana memecoin traders
+
+### 3. Raydium DEX Dashboard (Port 5003)
+- **10 Raydium pools**: SOL, RAY, JUP, ORCA, WIF, and more
+- **Features**: Slippage analysis, CEX comparison, pool health metrics
+- **Best for**: Understanding slippage before large DEX trades
+
+📖 **[Complete Dashboard Guide](DASHBOARD_GUIDE.md)**
 
 ## Features
 
-- **Multi-Exchange Support**: Monitor prices from Binance, Coinbase, Kraken, and more
-- **Real-Time Data**: WebSocket connections for live price streaming
-- **Arbitrage Detection**: Identify profitable trading opportunities
-- **Risk Management**: Position sizing, stop losses, and fee calculations
-- **Performance Analytics**: Track success rates and profitability
-- **Testnet Deployment**: Zero-risk testing environment
+- **Multi-Platform Support**: CEX (5 exchanges) + DEX (Solana ecosystem)
+- **Real-Time Data**: Live price streaming and updates
+- **Arbitrage Detection**: Net profit calculations (accounting for fees)
+- **Slippage Analysis**: Calculate impact for different trade sizes
+- **Demo Mode**: Simulate opportunities for presentations
+- **Zero Setup**: Free APIs, no authentication required
 
 ## Tech Stack
 
@@ -87,40 +117,54 @@ Built by Ben & David, this bot aims to:
 - [ ] Gradual rollout with small positions
 - [ ] Continuous optimization
 
-## Quick Start
-
-### Prerequisites
-```bash
-python3 --version  # Python 3.9 or higher
-pip --version
-```
+## 📊 Quick Start
 
 ### Installation
+
 ```bash
 # Clone the repository
-git clone git@github.com:BunPrinceton/crypto-bot-testnet.git
+git clone https://github.com/BunPrinceton/crypto-bot-testnet.git
 cd crypto-bot-testnet
 
 # Create virtual environment
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 ```
 
-### Environment Setup
-```bash
-# Copy example environment file
-cp .env.example .env
+### Run All Three Dashboards
 
-# Edit .env with your API keys
-nano .env
+Open **three separate terminals** and run:
+
+```bash
+# Terminal 1: CEX Dashboard (Port 5001)
+python src/multi_coin_dashboard.py
+
+# Terminal 2: Pump.fun Dashboard (Port 5002)
+python src/pump_fun_dashboard.py
+
+# Terminal 3: Raydium Dashboard (Port 5003)
+python src/raydium_dashboard.py
 ```
 
-### Run Basic Price Monitor
+Then open in your browser:
+- **CEX Dashboard**: http://localhost:5001
+- **Pump.fun Dashboard**: http://localhost:5002
+- **Raydium Dashboard**: http://localhost:5003
+
+### Quick CLI Examples
+
 ```bash
-python src/price_monitor.py
+# Monitor Solana tokens (no dashboard)
+python examples/pump_fun_basic_example.py
+
+# Detect arbitrage opportunities
+python examples/pump_fun_arbitrage_example.py
+
+# Analyze Raydium pools
+python src/raydium_monitor.py
 ```
 
 ## Key Challenges

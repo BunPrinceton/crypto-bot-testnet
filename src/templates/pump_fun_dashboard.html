@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pump.fun DEX Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #9945FF 0%, #14F195 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .solana-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #14F195 0%, #9945FF 100%);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #9945FF;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .card h2 {
+            color: #9945FF;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+            border-bottom: 3px solid #14F195;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: linear-gradient(135deg, #9945FF 0%, #14F195 100%);
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+
+        tr:hover {
+            background: #f8f9ff;
+        }
+
+        .symbol-name {
+            font-weight: bold;
+            color: #9945FF;
+            font-size: 1.1em;
+        }
+
+        .spread-low { color: #27ae60; }
+        .spread-medium { color: #f39c12; }
+        .spread-high { color: #e74c3c; }
+
+        .opportunity-card {
+            background: linear-gradient(135deg, #14F195 0%, #9945FF 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .profit-badge {
+            background: #ffd700;
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 0.9em;
+        }
+
+        .no-opportunities {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 1.1em;
+        }
+
+        .loading {
+            text-align: center;
+            color: #999;
+            padding: 20px;
+        }
+
+        .update-badge {
+            display: inline-block;
+            background: #14F195;
+            color: #000;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85em;
+        }
+
+        .address {
+            font-family: monospace;
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        @media (max-width: 1200px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎪 Pump.fun DEX Dashboard</h1>
+            <span class="solana-badge">⚡ Solana Network</span>
+            <p style="margin-top:10px; font-size:1.1em;">
+                Monitoring <strong><span id="tokenCount">5</span></strong> Solana tokens
+                | Last update: <span id="lastUpdate">Never</span>
+                | Iteration: <span class="update-badge" id="iteration">0</span>
+            </p>
+        </header>
+
+        <!-- Summary Statistics -->
+        <div class="stats-summary">
+            <div class="stat-box">
+                <div class="stat-value" id="totalTokens">-</div>
+                <div class="stat-label">Tokens Tracked</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="totalOpps">-</div>
+                <div class="stat-label">Arbitrage Opportunities</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="bestProfit">-</div>
+                <div class="stat-label">Best Net Profit %</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="totalLiquidity">-</div>
+                <div class="stat-label">Total Liquidity</div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Tokens Table -->
+            <div class="card">
+                <h2>🪙 Solana Tokens</h2>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Avg Price (USD)</th>
+                                <th>Spread %</th>
+                                <th>Liquidity</th>
+                                <th>24h Volume</th>
+                                <th>DEX Pairs</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tokensTable">
+                            <tr><td colspan="6" class="loading">Loading tokens...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Arbitrage Opportunities -->
+            <div class="card">
+                <h2>🎯 Arbitrage Opportunities</h2>
+                <div id="opportunitiesContainer" style="max-height: 600px; overflow-y: auto;">
+                    <div class="no-opportunities">Scanning for opportunities...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateDashboard() {
+            fetch('/api/data')
+                .then(response => response.json())
+                .then(data => {
+                    // Update header
+                    document.getElementById('lastUpdate').textContent = data.last_update || 'Never';
+                    document.getElementById('iteration').textContent = data.iteration;
+                    document.getElementById('tokenCount').textContent = data.tokens.length;
+
+                    // Update stats
+                    document.getElementById('totalTokens').textContent = data.tokens.length || 0;
+                    document.getElementById('totalOpps').textContent = data.arbitrage_opportunities.length || 0;
+
+                    const bestProfit = data.arbitrage_opportunities.length > 0
+                        ? data.arbitrage_opportunities[0].net_profit_pct.toFixed(3) + '%'
+                        : '0%';
+                    document.getElementById('bestProfit').textContent = bestProfit;
+
+                    const totalLiq = data.tokens.reduce((sum, t) => sum + (t.total_liquidity || 0), 0);
+                    document.getElementById('totalLiquidity').textContent =
+                        '$' + (totalLiq / 1000000).toFixed(1) + 'M';
+
+                    // Update tokens table
+                    updateTokensTable(data.tokens);
+
+                    // Update opportunities
+                    updateOpportunities(data.arbitrage_opportunities);
+                });
+        }
+
+        function updateTokensTable(tokens) {
+            const tbody = document.getElementById('tokensTable');
+
+            if (!tokens || tokens.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="loading">Loading data...</td></tr>';
+                return;
+            }
+
+            let html = '';
+            tokens.forEach(token => {
+                let spreadClass = 'spread-low';
+                if (token.spread_pct > 1.0) spreadClass = 'spread-high';
+                else if (token.spread_pct > 0.5) spreadClass = 'spread-medium';
+
+                html += `
+                    <tr>
+                        <td class="symbol-name">${token.symbol}</td>
+                        <td>$${token.avg_price.toFixed(8)}</td>
+                        <td class="${spreadClass}">${token.spread_pct.toFixed(3)}%</td>
+                        <td>$${(token.total_liquidity / 1000000).toFixed(2)}M</td>
+                        <td>$${(token.total_volume_24h / 1000).toFixed(0)}K</td>
+                        <td>${token.num_pairs}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function updateOpportunities(opportunities) {
+            const container = document.getElementById('opportunitiesContainer');
+
+            if (!opportunities || opportunities.length === 0) {
+                container.innerHTML = `
+                    <div class="no-opportunities">
+                        No profitable arbitrage opportunities found.<br>
+                        Markets are efficient! ✅
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            opportunities.forEach((opp, i) => {
+                html += `
+                    <div class="opportunity-card">
+                        <strong>#${i + 1}: ${opp.token}</strong>
+                        <p>Buy from <strong>${opp.buy_dex}</strong> @ $${opp.buy_price.toFixed(8)}
+                           (Liq: $${(opp.buy_liquidity / 1000).toFixed(0)}K)<br>
+                           Sell to <strong>${opp.sell_dex}</strong> @ $${opp.sell_price.toFixed(8)}
+                           (Liq: $${(opp.sell_liquidity / 1000).toFixed(0)}K)</p>
+                        <span class="profit-badge">💰 ${opp.net_profit_pct.toFixed(3)}% Net Profit</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Initialize
+        updateDashboard();
+
+        // Update every 5 seconds
+        setInterval(updateDashboard, 5000);
+    </script>
+</body>
+</html>
